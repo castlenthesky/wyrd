@@ -20,7 +20,7 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "vscode": [
-        "tests/mocks/vscode.ts"
+        "./tests/mocks/vscode.ts"
       ]
     }
   }

@@ -16,8 +16,8 @@
   "type": "module",
   "scripts": {
     "dev": "echo 'Open this directory in VSCode and then run your extension with F5 or `Run and Debug > Run Extension`!'",
-    "build": "bun run ./scripts/build-with-esbuild.ts",
-    "watch": "bun run ./scripts/watch-with-esbuild.ts",
+    "build": "esbuild ./src/extension.ts --bundle --outdir=./dist --outbase=./src --out-extension:.js=.cjs --format=cjs --platform=node --target=node12 --external:vscode --log-level=info",
+    "watch": "esbuild ./src/extension.ts --bundle --watch --outdir=./dist --outbase=./src --out-extension:.js=.cjs --format=cjs --platform=node --target=node12 --external:vscode --log-level=info",
     "vsce-package": "bun run vsce package",
     "package": "bun run build && bun run vsce-package",
     "clean": "rm -r ./dist",
