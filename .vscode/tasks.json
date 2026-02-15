@@ -4,7 +4,23 @@
     {
       "type": "shell",
       "command": "bun run watch",
-      "problemMatcher": "$tsc-watch",
+      "problemMatcher": {
+        "owner": "esbuild",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^([^\\s].*)\\(\\:(\\d+)\\:(\\d+)\\)\\: (error|warning)\\: (.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[watch\\] build started",
+          "endsPattern": "build finished"
+        }
+      },
       "label": "bun: watch",
       "isBackground": true,
       "group": {
