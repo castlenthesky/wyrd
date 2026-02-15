@@ -64,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
   async function updateGraphPanel() {
     if (GraphPanel.currentPanel) {
         try {
-            const graphData = await client.sendRequest('wyrd/getGraph');
+            const graphData = await client.sendRequest('wyrd/getGraph', {});
             GraphPanel.currentPanel.updateGraph(graphData);
         } catch (e) {
             vscode.window.showErrorMessage(`Failed to fetch graph: ${e}`);

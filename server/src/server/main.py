@@ -86,7 +86,8 @@ def did_save(ls: LanguageServer, params: DidSaveTextDocumentParams):
             logger.info("Graph update complete")
             # Notify client to refresh graph
             # ls.show_message("Graph updated", 1)  # Removed to avoid error and redundancy
-            ls.send_notification("wyrd/graphUpdated", {})
+            # Use protocol.notify for custom notifications in pygls v2+
+            ls.protocol.notify("wyrd/graphUpdated", {})
 
         except Exception as e:
             logger.error(f"DB Error: {e}")
