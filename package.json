@@ -2,7 +2,8 @@
   "main": "./dist/extension.cjs",
   "module": "index.ts",
   "dependencies": {
-    "@types/vscode": "^1.86.0"
+    "@types/vscode": "^1.86.0",
+    "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -19,7 +20,8 @@
     "watch": "bun run ./scripts/watch-with-esbuild.ts",
     "vsce-package": "bun run vsce package",
     "package": "bun run build && bun run vsce-package",
-    "clean": "rm -r ./dist"
+    "clean": "rm -r ./dist",
+    "server:install": "cd server && uv sync"
   },
   "//": "START EXTENSION ATTRIBUTES",
   "name": "wyrd",
@@ -30,10 +32,13 @@
     "type": "git",
     "url": "https://github.com/YOURNAME"
   },
+  "activationEvents": [
+    "onLanguage:python"
+  ],
   "contributes": {
     "commands": [
       {
-        "command": "bun-vscode-extension.helloworld",
+        "command": "wyrd.helloWorld",
         "title": "Hello World"
       }
     ]
