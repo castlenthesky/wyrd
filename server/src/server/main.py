@@ -8,6 +8,8 @@ from lsprotocol.types import (
 from pygls.lsp.server import LanguageServer
 from server.db import FalkorDBClient
 from server.parser import TreeSitterParser
+from server.uast.builder import UASTBuilder
+from server.uast.ingester import UASTIngester
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +19,9 @@ server = LanguageServer("wyrd-server", "v0.1")
 
 # Initialize components
 parser = TreeSitterParser()
+uast_builder = UASTBuilder()
 db_client = FalkorDBClient()
+ingester = UASTIngester(db_client)
 
 
 @server.feature(TEXT_DOCUMENT_DID_SAVE)
@@ -37,56 +41,31 @@ def did_save(ls: LanguageServer, params: DidSaveTextDocumentParams):
 
     if content:
         logger.info(f"Parsing file: {uri}")
+
+        # 1. Parse to CST (using TreeSitterParser helper or direct)
         tree = parser.parse(content)
-        nodes, edges = parser.extract_graph(tree, uri)
 
-        logger.info(f"Extracted {len(nodes)} nodes and {len(edges)} edges")
+        # 2. Build UAST
+        # Pass the source code bytes
+        graph_payload = uast_builder.build(tree.root_node, bytes(content, "utf8"))
+        logger.info(
+            f"Built UAST with {len(graph_payload.nodes)} nodes and {len(graph_payload.edges)} edges"
+        )
 
-        # DB Integration
+        # 3. Ingest to FalkorDB
         if not db_client.graph:
             if not db_client.connect():
                 logger.error("No DB connection")
                 return
 
         try:
-            # 1. DELETE existing nodes for this file
-            delete_query = f"MATCH (n {{file: '{uri}'}}) DETACH DELETE n"
-            db_client.query(delete_query)
+            # TODO: Implement robust deletion strategy.
+            # For now, we rely on MERGE idempotency.
 
-            # 2. CREATE nodes
-            for node in nodes:
-                props = node["properties"]
-                # Add the ID to properties for easier querying
-                props["node_id"] = node["id"]
-
-                # Format properties for Cypher
-                # Basic escaping for POC
-                props_str_parts = []
-                for k, v in props.items():
-                    if isinstance(v, str):
-                        safe_v = v.replace("'", "\\'")
-                        props_str_parts.append(f"{k}: '{safe_v}'")
-                    else:
-                        props_str_parts.append(f"{k}: {v}")
-                props_str = ", ".join(props_str_parts)
-
-                query = f"CREATE (n:{node['label']} {{{props_str}}})"
-                db_client.query(query)
-
-            # 3. CREATE edges
-            for src_id, rel_type, dst_id in edges:
-                # MATCH using the node_id property
-                # Using MERGE to be safe, though CREATE is faster if we are sure
-                edge_query = f"""
-                MATCH (a {{node_id: '{src_id}'}}), (b {{node_id: '{dst_id}'}})
-                CREATE (a)-[:{rel_type}]->(b)
-                """
-                db_client.query(edge_query)
+            ingester.ingest(graph_payload)
 
             logger.info("Graph update complete")
             # Notify client to refresh graph
-            # ls.show_message("Graph updated", 1)  # Removed to avoid error and redundancy
-            # Use protocol.notify for custom notifications in pygls v2+
             ls.protocol.notify("wyrd/graphUpdated", {})
 
         except Exception as e:
