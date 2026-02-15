@@ -33,13 +33,18 @@
     "url": "https://github.com/YOURNAME"
   },
   "activationEvents": [
-    "onLanguage:python"
+    "onLanguage:python",
+    "onCommand:wyrd.showGraph"
   ],
   "contributes": {
     "commands": [
       {
         "command": "wyrd.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "wyrd.showGraph",
+        "title": "Show Graph"
       }
     ]
   },

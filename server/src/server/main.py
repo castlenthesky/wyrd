@@ -1,13 +1,13 @@
-from pygls.lsp.server import LanguageServer
+import logging
+import urllib.parse
+
 from lsprotocol.types import (
     TEXT_DOCUMENT_DID_SAVE,
     DidSaveTextDocumentParams,
 )
-from server.parser import TreeSitterParser
+from pygls.lsp.server import LanguageServer
 from server.db import FalkorDBClient
-import logging
-import urllib.parse
-
+from server.parser import TreeSitterParser
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -84,9 +84,23 @@ def did_save(ls: LanguageServer, params: DidSaveTextDocumentParams):
                 db_client.query(edge_query)
 
             logger.info("Graph update complete")
+            # Notify client to refresh graph
+            # ls.show_message("Graph updated", 1)  # Removed to avoid error and redundancy
+            ls.send_notification("wyrd/graphUpdated", {})
 
         except Exception as e:
             logger.error(f"DB Error: {e}")
+
+
+@server.feature("wyrd/getGraph")
+def get_graph(ls: LanguageServer, params):
+    logger.info("Received request for full graph")
+    if not db_client.graph:
+        if not db_client.connect():
+            logger.error("No DB connection")
+            return {"nodes": [], "links": []}
+
+    return db_client.get_full_graph()
 
 
 def main():

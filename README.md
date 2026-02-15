@@ -4,6 +4,58 @@
 
 ---
 
+## ⚡ Getting Started
+
+Follow these steps to set up your development environment.
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+*   **Node.js & [Bun](https://bun.sh/)**: For the VS Code extension client.
+*   **Python 3.13+ & [uv](https://docs.astral.sh/uv/)**: For the Language Server.
+*   **Docker & Docker Compose**: For the FalkorDB graph database.
+
+### 📦 Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/YOURNAME/wyrd.git
+    cd wyrd
+    ```
+
+2.  **Install Client Dependencies:**
+    ```bash
+    bun install
+    ```
+
+3.  **Install Server Dependencies:**
+    ```bash
+    cd server
+    uv sync
+    cd ..
+    ```
+
+4.  **Start the Database:**
+    ```bash
+    docker compose -f docker/compose.yaml up -d
+    ```
+
+### ▶️ Running the Extension
+
+1.  Open the project in **VS Code**.
+2.  Press `F5` or navigate to **Run and Debug** and select **Run Extension**.
+3.  A new **Extension Development Host** window will open with WYRD active.
+4.  Open a Python file in the new window to trigger the extension (check the "Wyrd Language Server" output channel).
+
+### 🐛 Debugging
+
+*   **Client:** Use the Debug Console in the main VS Code window.
+*   **Server:** Logs are output to the **Wyrd Language Server** channel in the Output tab.
+*   **Database:** Logs are output to the **FalkorDB** channel in the Output tab and the graph can be inspected at `http://localhost:3003/graph`.
+
+---
+
 ## 🚀 Overview
 
 Traditional IDE intelligence is often limited to file-level analysis or simple text search. WYRD treats your codebase as a **Code Property Graph (CPG)**—a layered graph merging structure, control flow, and data dependencies.
