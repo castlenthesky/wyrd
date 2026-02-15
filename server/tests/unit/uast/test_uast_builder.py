@@ -19,7 +19,7 @@ def test_build_returns_payload(uast_builder):
     mock_root = MagicMock(spec=Node)
     mock_root.children = []
     mock_root.type = "module"
-    result = uast_builder.build(mock_root, b"")
+    result = uast_builder.build(mock_root, b"", "/tmp/test.py")
     assert isinstance(result, GraphPayload)
 
 
@@ -61,7 +61,7 @@ def test_handle_function_definition_creates_nodes_and_edges(uast_builder):
     assert uast_builder._graph.nodes[0].properties["name"] == "foo"
 
     assert len(uast_builder._graph.edges) == 1
-    assert uast_builder._graph.edges[0].type == "CONTAINS"
+    assert uast_builder._graph.edges[0].type == "DEFINES"
     assert uast_builder._graph.edges[0].source_id == "module:0"
     assert uast_builder._graph.edges[0].target_id == node_id
 

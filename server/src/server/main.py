@@ -46,8 +46,11 @@ def did_save(ls: LanguageServer, params: DidSaveTextDocumentParams):
         tree = parser.parse(content)
 
         # 2. Build UAST
-        # Pass the source code bytes
-        graph_payload = uast_builder.build(tree.root_node, bytes(content, "utf8"))
+        # Pass the source code bytes and file path
+        # file_path is derived earlier from uri
+        graph_payload = uast_builder.build(
+            tree.root_node, bytes(content, "utf8"), file_path
+        )
         logger.info(
             f"Built UAST with {len(graph_payload.nodes)} nodes and {len(graph_payload.edges)} edges"
         )
